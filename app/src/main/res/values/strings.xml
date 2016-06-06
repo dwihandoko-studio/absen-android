@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">E-Presensi</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_login">Masuk</string>
+    <string name="title_activity_utama">Jadwal Hari ini</string>
+    <string name="title_activity_jadwal">Jadwal</string>
+    <string name="title_activity_ruangan">Ruangan</string>
+    <string name="title_activity_kompensasi">Kompensasi</string>
+    <string name="title_activity_maps">Map</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="hello_world">Hello world!</string>
+
+</resources>

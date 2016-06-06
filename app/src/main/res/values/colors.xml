@@ -1,0 +1,19 @@
+<resources>
+    <color name="primaryColorVeryLight">#01E0AE</color>
+    <color name="primaryColorLight">#01C0AE</color>
+    <color name="primaryColor">#16A085</color>
+    <color name="primaryColorDark">#117D68</color>
+    <color name="accentColor">#F3F3F3</color>
+
+    <color name="whiteColor">#FFFFFF</color>
+    <color name="whiteDarkColor">#F3F3F3</color>
+    <color name="greyLightColor">#DFDFDF</color>
+    <color name="greyColor">#A3A3A3</color>
+    <color name="greyDarkColor">#666666</color>
+    <color name="blackLightColor">#393939</color>
+    <color name="blackColor">#000000</color>
+    <color name="redColor">#F44336</color>
+    <color name="blueColor">#2D55E5</color>
+    <color name="blueColorLight">#3F85E5</color>
+    <color name="orangeColor">#EE8434</color>
+</resources>

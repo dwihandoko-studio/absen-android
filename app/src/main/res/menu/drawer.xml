@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_akun"
+            android:icon="@mipmap/ic_account_grey600_36dp"
+            android:title="Akun Saya" />
+        <item
+            android:id="@+id/nav_ruangan"
+            android:icon="@mipmap/ic_dice_5_grey600_36dp"
+            android:title="Ruangan" />
+        <item
+            android:id="@+id/nav_jadwal"
+            android:icon="@mipmap/ic_calendar_clock_grey600_36dp"
+            android:title="Jadwal" />
+        <item
+            android:id="@+id/nav_kompensasi"
+            android:icon="@mipmap/ic_dns_grey600_36dp"
+            android:title="Kompensasi" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@mipmap/ic_logout_grey600_36dp"
+            android:title="Keluar" />
+    </group>
+
+</menu>

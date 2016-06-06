@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.taralite.e_presensi.menu.RuanganDetailActivity"
+    tools:showIn="@layout/activity_ruangan_detail">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rd_content_top"
+        android:layout_above="@+id/rd_content_bottom">
+
+        <fragment
+            android:id="@+id/rd_maps"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.taralite.e_presensi.MapsActivity" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:id="@+id/rd_content_bottom"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/rd_content_bottom_left"
+            android:layout_toLeftOf="@+id/rd_batas_1"
+            android:padding="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rd_ruangan"
+                android:text="AA 103"
+                android:textColor="@color/blackLightColor"
+                android:textSize="@dimen/normal_big_text"
+                android:textStyle="bold"/>
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:id="@+id/rd_status"
+                android:layout_below="@+id/rd_ruangan"
+                android:layout_marginTop="@dimen/activity_vertical_margin_normal"
+                android:layout_marginRight="@dimen/activity_horizontal_margin_normal"
+                android:src="@drawable/buled_hijau"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rd_text_status"
+                android:layout_below="@id/rd_ruangan"
+                android:layout_toRightOf="@id/rd_status"
+                android:text="active"
+                android:textColor="@color/blackLightColor"
+                android:textSize="@dimen/normal_small_text"
+                android:layout_marginTop="@dimen/activity_vertical_margin_normal"/>
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="5dp"
+            android:layout_height="match_parent"
+            android:id="@+id/rd_batas_1"
+            android:layout_centerHorizontal="true"/>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/rd_content_bottom_right"
+            android:layout_toRightOf="@+id/rd_batas_1"
+            android:padding="15dp">
+
+            <Button
+                android:id="@+id/rd_lihat_mahasiswa"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/activity_height_small"
+                android:text="Lihat Mahasiswa"
+                android:background="@color/redColor"
+                android:textSize="@dimen/normal_small_text"
+                android:textColor="@color/whiteColor"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:background="@color/primaryColor"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@color/whiteColor"
+        android:layout_marginBottom="@dimen/activity_vertical_margin_normal"/>
+
+    <TextView
+        android:id="@+id/namaUserLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profile_image"
+        android:layout_marginTop="@dimen/activity_vertical_margin_normal"
+        android:text="Nama User"
+        android:textSize="@dimen/normal_medium_text"
+        android:textColor="@color/whiteColor"/>
+
+    <TextView
+        android:id="@+id/jenisUserLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/namaUserLogin"
+        android:text="Mahasiswa"
+        android:textSize="@dimen/normal_small_text"
+        android:textColor="@color/whiteColor"/>
+
+</RelativeLayout>
