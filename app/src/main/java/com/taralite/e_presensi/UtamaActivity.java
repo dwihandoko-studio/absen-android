@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.taralite.e_presensi.adapter.AdapterJadwalHarian;
 import com.taralite.e_presensi.connection.WebClientDevWrapper;
 import com.taralite.e_presensi.menu.JadwalActivity;
+import com.taralite.e_presensi.menu.RuanganActivity;
 import com.taralite.e_presensi.object.DataObjectJadwalHarian;
 
 import org.apache.http.HttpEntity;
@@ -44,8 +45,7 @@ import java.util.List;
 /**
  * Created by taralite on 5/26/16.
  */
-public class UtamaActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class UtamaActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private RecyclerView list_jadwal_harian;
     private AdapterJadwalHarian mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -65,8 +65,7 @@ public class UtamaActivity extends AppCompatActivity
         list_jadwal_harian.setLayoutManager(mLayoutManager);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -88,13 +87,15 @@ public class UtamaActivity extends AppCompatActivity
             namaUserLogin.setText("" + mhs_nama);
             typeUserLogin.setText("Mahasiswa");
 
-            new getScheToday().execute("ListJadwalToday", id_kelas, id_semester, id_akademik);
+            new getJadwalToday().execute("ListJadwalToday", id_kelas, id_semester, id_akademik);
 
         } else {
-            nip = ambil.getStringExtra("dosen_id");
-            dosen_nama = ambil.getStringExtra("nama_dosen");
+            nip = ambil.getStringExtra("nip");
+            dosen_nama = ambil.getStringExtra("dosen_nama");
             namaUserLogin.setText("" + dosen_nama);
             typeUserLogin.setText("Dosen");
+
+            new getJadwalToday().execute("ListJadwalForDosenToday", nip);
         }
     }
 
@@ -103,6 +104,7 @@ public class UtamaActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+
         } else {
             super.onBackPressed();
         }
@@ -139,6 +141,9 @@ public class UtamaActivity extends AppCompatActivity
         if (id == R.id.nav_akun) {
 
         } else if (id == R.id.nav_ruangan) {
+            Intent pindah = new Intent(UtamaActivity.this, RuanganActivity.class);
+            pindah.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(pindah);
 
         } else if (id == R.id.nav_jadwal) {
 
@@ -155,6 +160,12 @@ public class UtamaActivity extends AppCompatActivity
                 startActivity(pindah);
 
             } else {
+                Intent pindah = new Intent(UtamaActivity.this, JadwalActivity.class);
+                pindah.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                pindah.putExtra("typeUser", typeUser);
+                pindah.putExtra("nip", nip);
+                pindah.putExtra("dosen_nama", dosen_nama);
+                startActivity(pindah);
 
             }
 
@@ -169,8 +180,7 @@ public class UtamaActivity extends AppCompatActivity
         return true;
     }
 
-
-    public class getScheToday extends AsyncTask<String, Void, String> {
+    public class getJadwalToday extends AsyncTask<String, Void, String> {
 
         InputStream is = null;
         JSONObject jObj = null;
@@ -201,40 +211,40 @@ public class UtamaActivity extends AppCompatActivity
             try {
                 DefaultHttpClient httpClient = (DefaultHttpClient) WebClientDevWrapper.getNewHttpClient();
                 HttpPost httpPost = new HttpPost(LoginActivity.webservice + params[0]); // Jenis respost
-                System.out.println("LINKNYA " + LoginActivity.webservice + params[0]);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(0);
-                nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
-                nameValuePairs.add(new BasicNameValuePair("id_kelas", params[1]));
-                nameValuePairs.add(new BasicNameValuePair("id_semester", params[2]));
-                nameValuePairs.add(new BasicNameValuePair("id_akademik", params[3]));
-                nameValuePairs.add(new BasicNameValuePair("hari", "today"));
 
-                System.out.println("PARAMSS " + params[0]);
-                System.out.println("PARAMSS " + params[1]);
-                System.out.println("PARAMSS " + params[2]);
-                System.out.println("PARAMSS " + params[3]);
+                if (params[0].equals("ListJadwalToday")){
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                    nameValuePairs.add(new BasicNameValuePair("id_kelas", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("id_semester", params[2]));
+                    nameValuePairs.add(new BasicNameValuePair("id_akademik", params[3]));
+                    nameValuePairs.add(new BasicNameValuePair("hari", "today"));
 
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
-                        HTTP.UTF_8));
+                } else {
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                    nameValuePairs.add(new BasicNameValuePair("id_dosen", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("hari", "today"));
+                }
+
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
                 code = httpResponse.getStatusLine().getStatusCode();
-                System.out.println("CODEEEEEE " + code);
+
                 if (code == HttpStatus.SC_OK) {
                     is = httpEntity.getContent();
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(is, "iso-8859-1"), 8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
                     }
+
                     is.close(); // tutup koneksi stlah medapatkan respone
                     json = sb.toString(); // Respon di jadikan sebuah string
-                    System.out.println("Hasil TODAY " + json);
                     jObj = new JSONObject(json); // Response di jadikan sebuah
                     result = jObj.getString("status");
-                    System.out.println("Hasul resultnya : " + result);
+
                     if (result.trim().equals("200")) {
 
                         JSONArray DATA = jObj.getJSONObject("results").getJSONArray("listjadwal");
@@ -270,11 +280,9 @@ public class UtamaActivity extends AppCompatActivity
                             Ruangan_latlng4[y] = ar.getJSONObject("info_ruangan").getString("latlong_d");
                             Dosen[y] = ar.getJSONObject("info_dosen").getString("nama_dosen");
 
-
-                            DataObjectJadwalHarian obj1 = new DataObjectJadwalHarian(KodeMatkul[y], Matkul[y], JadwalMulai[y] + "-" + JadwalSelesai[y], KodeRuangan[y], Ruangan[y], Ruangan_latlng1[y], Ruangan_latlng2[y], Ruangan_latlng3[y], Ruangan_latlng4[y], Dosen[y]);
+                            DataObjectJadwalHarian obj1 = new DataObjectJadwalHarian(KodeRuangan[y], Matkul[y], JadwalMulai[y] + "-" + JadwalSelesai[y], KodeRuangan[y], Ruangan[y], Ruangan_latlng1[y], Ruangan_latlng2[y], Ruangan_latlng3[y], Ruangan_latlng4[y], Dosen[y]);
                             ArrayList.add(y, obj1);
                         }
-
 
                     } else {
                         // GAGAL LOGIN
@@ -292,7 +300,6 @@ public class UtamaActivity extends AppCompatActivity
 
             }
 
-
             // TODO: register the new account here.
             return null;
         }
@@ -304,16 +311,15 @@ public class UtamaActivity extends AppCompatActivity
                 if (result.equals("200")) {
                     mAdapter = new AdapterJadwalHarian(getApplicationContext(), ArrayList);
                     list_jadwal_harian.setAdapter(mAdapter);
+
                 } else {
                     Toast.makeText(getApplicationContext(), "Gagal Response code " + code, Toast.LENGTH_LONG).show();
+
                 }
+
             } catch (Exception er) {
 
             }
         }
-
-
     }
-
-
 }

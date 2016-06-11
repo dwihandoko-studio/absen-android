@@ -87,24 +87,17 @@ public class JadwalHarianActivity extends AppCompatActivity {
                 position = ambil.getStringExtra("position");
 
                 titleJadwal.setText("Jadwal " + day);
-
-                SimpleDateFormat form = new SimpleDateFormat("yyyy-04");
-
-                Calendar c = Calendar.getInstance();
-                int monthMaxDays = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-                int monthMinDays = c.getActualMinimum(Calendar.DAY_OF_MONTH);
-
-                String formattedDate = form.format(c.getTime());
-
-                String start = formattedDate + "-" + monthMinDays;
-                String end = formattedDate + "-" + monthMaxDays;
-                System.out.println(start + "  <<>>> " + end);
-
                 new getJadwalToday().execute("ListJadwalToday", id_kelas, id_semester, id_akademik, position);
+
             } else {
                 nip = ambil.getStringExtra("nip");
-                Toast.makeText(getApplicationContext(), "API Jadwal dosen belum ada", Toast.LENGTH_LONG).show();
+                position = ambil.getStringExtra("position");
+
+                titleJadwal.setText("Jadwal " + day);
+                new getJadwalToday().execute("ListJadwalForDosenToday", nip, position);
+
             }
+
         } catch (Exception er) {
 
         }
@@ -151,39 +144,38 @@ public class JadwalHarianActivity extends AppCompatActivity {
                 DefaultHttpClient httpClient = (DefaultHttpClient) WebClientDevWrapper.getNewHttpClient();
                 HttpPost httpPost = new HttpPost(LoginActivity.webservice + params[0]); // Jenis respost
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(0);
-                nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
-                nameValuePairs.add(new BasicNameValuePair("id_kelas", params[1]));
-                nameValuePairs.add(new BasicNameValuePair("id_semester", params[2]));
-                nameValuePairs.add(new BasicNameValuePair("id_akademik", params[3]));
-                nameValuePairs.add(new BasicNameValuePair("hari", params[4]));
+                if (params[0].equals("ListJadwalToday")){
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                    nameValuePairs.add(new BasicNameValuePair("id_kelas", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("id_semester", params[2]));
+                    nameValuePairs.add(new BasicNameValuePair("id_akademik", params[3]));
+                    nameValuePairs.add(new BasicNameValuePair("hari", params[4]));
 
-                System.out.println("PARAMSS " + params[1]);
-                System.out.println("PARAMSS " + params[2]);
-                System.out.println("PARAMSS " + params[3]);
-                System.out.println("PARAMSS " + params[4]);
+                } else {
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                    nameValuePairs.add(new BasicNameValuePair("id_dosen", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("hari", params[2]));
+                }
 
-
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
-                        HTTP.UTF_8));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
                 code = httpResponse.getStatusLine().getStatusCode();
-                System.out.println("CODEEEEEE " + code);
+
                 if (code == HttpStatus.SC_OK) {
                     is = httpEntity.getContent();
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(is, "iso-8859-1"), 8);
+                    BufferedReader reader = new BufferedReader( new InputStreamReader(is, "iso-8859-1"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
                     }
+
                     is.close(); // tutup koneksi stlah medapatkan respone
                     json = sb.toString(); // Respon di jadikan sebuah string
-                    System.out.println("Hasil TODAY " + json);
                     jObj = new JSONObject(json); // Response di jadikan sebuah
                     result = jObj.getString("status");
-                    System.out.println("Hasul resul; " + result);
+
                     if (result.trim().equals("200")) {
 
                         JSONArray DATA = jObj.getJSONObject("results").getJSONArray("listjadwal");
@@ -249,6 +241,7 @@ public class JadwalHarianActivity extends AppCompatActivity {
                     if(arrayList.size()>0){
                         mAdapter = new AdapterJadwalHarian(getApplicationContext(), arrayList);
                         list_jadwal_harian.setAdapter(mAdapter);
+
                     } else {
                         Toast.makeText(getApplicationContext(), "Jadwal anda hari ini kosong ", Toast.LENGTH_LONG).show();
                     }

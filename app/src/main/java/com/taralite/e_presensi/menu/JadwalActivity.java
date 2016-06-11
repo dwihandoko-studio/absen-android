@@ -68,13 +68,11 @@ public class JadwalActivity  extends AppCompatActivity {
         Date today = new Date();
         dateNow = dateFormat.format(today);
 
-
         //AMBIL INTENT YG DI KIRIM OLEH CLASS SEBELUMNYA
         Intent ambil = getIntent();
         typeUser = ambil.getStringExtra("typeUser");
 
-
-        // Get data sche from server
+        // Get data jadwal from server
         try {
             if (typeUser.equals("loginMhs")) {
 
@@ -84,23 +82,15 @@ public class JadwalActivity  extends AppCompatActivity {
                 id_semester = ambil.getStringExtra("id_semester");
                 id_akademik = ambil.getStringExtra("id_akademik");
 
-                SimpleDateFormat form = new SimpleDateFormat("yyyy-04");
-
-                Calendar c = Calendar.getInstance();
-                int monthMaxDays = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-                int monthMinDays = c.getActualMinimum(Calendar.DAY_OF_MONTH);
-
-                String formattedDate = form.format(c.getTime());
-
-                String start = formattedDate + "-" + monthMinDays;
-                String end = formattedDate + "-" + monthMaxDays;
-                System.out.println(start + "  <<>>> " + end);
-
                 new getJadwalAll().execute("ListJadwalAll", id_kelas, id_semester, id_akademik);
+
             } else {
-                nip = ambil.getStringExtra("dosen_id");
-                Toast.makeText(getApplicationContext(), "API Jadwal dosen belum ada", Toast.LENGTH_LONG).show();
+                nip = ambil.getStringExtra("nip");
+
+                new getJadwalAll().execute("ListJadwalForDosenAll", nip);
+
             }
+
         } catch (Exception er) {
 
         }
@@ -113,7 +103,6 @@ public class JadwalActivity  extends AppCompatActivity {
         });
 
     }
-
 
     public class getJadwalAll extends AsyncTask<String, Void, String> {
 
@@ -147,36 +136,36 @@ public class JadwalActivity  extends AppCompatActivity {
                 DefaultHttpClient httpClient = (DefaultHttpClient) WebClientDevWrapper.getNewHttpClient();
                 HttpPost httpPost = new HttpPost(LoginActivity.webservice + params[0]); // Jenis respost
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(0);
-                nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
-                nameValuePairs.add(new BasicNameValuePair("id_kelas", params[1]));
-                nameValuePairs.add(new BasicNameValuePair("id_semester", params[2]));
-                nameValuePairs.add(new BasicNameValuePair("id_akademik", params[3]));
+                if (params[0].equals("ListJadwalAll")){
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                    nameValuePairs.add(new BasicNameValuePair("id_kelas", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("id_semester", params[2]));
+                    nameValuePairs.add(new BasicNameValuePair("id_akademik", params[3]));
 
-                System.out.println(params[1]);
-                System.out.println(params[2]);
-                System.out.println(params[3]);
+                } else {
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                    nameValuePairs.add(new BasicNameValuePair("id_dosen", params[1]));
+                }
 
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
-                        HTTP.UTF_8));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
                 code = httpResponse.getStatusLine().getStatusCode();
-                System.out.println("CODEEEEEE " + code);
+
                 if (code == HttpStatus.SC_OK) {
                     is = httpEntity.getContent();
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(is, "iso-8859-1"), 8);
+                    BufferedReader reader = new BufferedReader( new InputStreamReader(is, "iso-8859-1"), 8);
                     StringBuilder sb = new StringBuilder();
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
                     }
+
                     is.close(); // tutup koneksi stlah medapatkan respone
                     json = sb.toString(); // Respon di jadikan sebuah string
-                    System.out.println("Hasil Login " + json);
                     jObj = new JSONObject(json); // Response di jadikan sebuah
                     result = jObj.getString("status");
-                    System.out.println("Hasul resul; " + result);
+
                     if (result.trim().equals("200")) {
 
                         JSONArray DATA = jObj.getJSONArray("results");
@@ -202,8 +191,9 @@ public class JadwalActivity  extends AppCompatActivity {
                             try {
                                 JadwalHari[y] = ar.getString("nama_hari");
                                 JSONArray DATA2 = ar.getJSONArray("list_jadwal");
-
                                 JumlahMatkul = String.valueOf(DATA2.length());
+                                System.out.println("JUMLAH MATKULNYA " + JumlahMatkul);
+
                                 for (int x = 0; x < DATA2.length(); x++) {
                                     JSONObject ar2 = DATA2.getJSONObject(x);
                                     KodeJadwal[x] = ar2.getJSONObject("general").getString("kode_jadwal");
@@ -214,44 +204,36 @@ public class JadwalActivity  extends AppCompatActivity {
                                     JadwalSelesai[x] = ar2.getJSONObject("general").getString("jam_selesai");
                                     Ruangan_latlng1[x] = ar2.getJSONObject("info_ruangan").getString("latlong_a");
                                     Ruangan_latlng2[x] = ar2.getJSONObject("info_ruangan").getString("latlong_b");
+                                    Ruangan_latlng3[x] = ar2.getJSONObject("info_ruangan").getString("latlong_c");
+                                    Ruangan_latlng4[x] = ar2.getJSONObject("info_ruangan").getString("latlong_d");
                                     KodeMatkul[x] = ar2.getJSONObject("info_matkul").getString("id_mk");
-                                }
+                                    }
+
 
                             } catch (Exception er) {
                                 System.out.println("Errorrr karena "+er.getMessage());
-                                JadwalHari[y] = null;
-                                KodeJadwal[y] = null;
-                                Ruangan[y] = null;
-                                Matkul[y] = null;
-                                Dosen[y] = null;
-                                JadwalMulai[y] = null;
-                                JadwalSelesai[y] = null;
-                                Ruangan_latlng1[y] = null;
-                                Ruangan_latlng2[y] = null;
-                                KodeMatkul[y] = null;
+
                             }
 
                             DataObjectJadwal obj = new DataObjectJadwal(JumlahMatkul, Matkul[y], JadwalHari[y], JadwalMulai[y], JadwalSelesai[y], Ruangan[y], Ruangan_latlng1[y], Ruangan_latlng2[y], Ruangan_latlng3[y], Ruangan_latlng4[y], Dosen[y]);
                             arrayList.add(y, obj);
                         }
 
-
                     } else {
                         // GAGAL LOGIN
                         System.out.println("GAGAL LOGIN");
                     }
+
                 } else {
                     // GAGAL REQUEST
                     System.out.println("GAGAL REQUEST ");
                 }
-
 
             } catch (Exception e) {
                 System.out.println("Errrorr " + e.getMessage());
                 return null;
 
             }
-
 
             // TODO: register the new account here.
             return null;
@@ -265,10 +247,11 @@ public class JadwalActivity  extends AppCompatActivity {
                     mAdapter = new AdapterJadwal(getApplicationContext(), arrayList);
                     list_jadwal.setAdapter(mAdapter);
 
-
                 } else {
                     Toast.makeText(getApplicationContext(), "Gagal Response code " + code, Toast.LENGTH_LONG).show();
+
                 }
+
             } catch (Exception er) {
 
             }

@@ -50,14 +50,9 @@ import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static String webservice = "http://192.168.1.100/newabsensi/apiv2/service/";
-    public static String typeUser, id, nim, mhs_nama, id_kelas, email, id_semester, id_akademik, tahun_masuk, tanggal_lahir, no_hp, id_prodi, prodi, id_jurusan, jurusan, imei;
-    String id_dosen, nip, dosen_nama, id_jabatan, kode_dosen, jabatan, NIM, ImeiNumber;
-    private static final int REQUEST_READ_CONTACTS = 0;
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-
+    public static String webservice = "http://192.168.1.100/presensi/apiv2/service/";
+    public static String typeUser, id, nim, mhs_nama, id_kelas, email, id_semester, id_akademik, tahun_masuk, tanggal_lahir, no_hp, id_prodi, prodi, id_jurusan, jurusan, imei, nim_email;
+    public static String id_dosen, nip, dosen_nama, jabatan;
     private UserLoginTask mAuthTask = null;
     private AutoCompleteTextView mEmailView;
     private View mProgressView;
@@ -72,40 +67,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.nim_email);
         spinner1 = (Spinner) findViewById(R.id.spinner1);
+
         List<String> list = new ArrayList<String>();
         list.add("Mahasiswa");
         list.add("Dosen");
+
         TelephonyManager mngr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         imei = mngr.getDeviceId();
+
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>
                 (this, android.R.layout.simple_spinner_item, list);
 
-        dataAdapter.setDropDownViewResource
-                (android.R.layout.simple_spinner_dropdown_item);
-
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner1.setAdapter(dataAdapter);
-
-        NIM = "4312010005";
-        ImeiNumber = "865291021588628";
-
-
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String currentDateandTime = dateFormat.format(new Date());
-            Date date = dateFormat.parse(currentDateandTime);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            calendar.add(Calendar.MINUTE, -5);
-            Date fiveMenitBack = calendar.getTime();
-
-            System.out.println("Time here " + calendar.getTime() + " <<>>  " + fiveMenitBack.toString() + " >> " + fiveMenitBack.getTime());
-
-            Date mulai = dateFormat.parse(calendar.get(Calendar.YEAR) + "-" + calendar.get(Calendar.MONTH) + "-" + calendar.get(Calendar.DATE) + " 09:45:00");
-            long mul = mulai.getTime();
-            System.out.println("mu  " + mulai.toString() + " >> " + mul);
-        } catch (Exception er) {
-            System.out.println("Errorr " + er.getMessage());
-        }
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
@@ -142,9 +116,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
 
         // Reset errors.
         mEmailView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        nim_email = mEmailView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -153,6 +125,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -160,12 +133,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
             System.out.println("TYPE USER "+typeUser);
             if (typeUser.equals("Mahasiswa")) {
                 UserLoginTask mAuthTask = new UserLoginTask();
-                mAuthTask.execute("loginMhs", ImeiNumber, NIM);
+                mAuthTask.execute("loginMhs", imei, nim_email);
+
             } else {
                 UserLoginTask mAuthTask = new UserLoginTask();
-                mAuthTask.execute("loginDosen", ImeiNumber, NIM);
-            }
+                mAuthTask.execute("loginDosen", imei, nim_email);
 
+            }
         }
     }
 
@@ -207,6 +181,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                     mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
                 }
             });
+
         } else {
             // The ViewPropertyAnimator APIs are not available, so simply show
             // and hide the relevant UI components.
@@ -286,19 +261,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                 typeUser = params[0];
                 DefaultHttpClient httpClient = (DefaultHttpClient) WebClientDevWrapper.getNewHttpClient();
                 HttpPost httpPost = new HttpPost(webservice + params[0]); // Jenis respost
-                System.out.println("LINKNYA " + webservice + params[0]);
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(0);
 
-                nameValuePairs.add(new BasicNameValuePair("ImeiNumber", params[1]));
-                nameValuePairs.add(new BasicNameValuePair("nim", params[2]));
-                nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                if(params[0].equals("loginMhs")){
+                    nameValuePairs.add(new BasicNameValuePair("ImeiNumber", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("nim", params[2]));
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
 
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
-                        HTTP.UTF_8));
+                } else {
+                    nameValuePairs.add(new BasicNameValuePair("ImeiNumber", params[1]));
+                    nameValuePairs.add(new BasicNameValuePair("email", params[2]));
+                    nameValuePairs.add(new BasicNameValuePair("signature", "dd7298aa1a5d2220ba3b11d82db4feb9a3bc908e"));
+                }
+
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 HttpEntity httpEntity = httpResponse.getEntity();
                 int code = httpResponse.getStatusLine().getStatusCode();
-                System.out.println("CODEEEEEE " + code);
+
                 if (code == HttpStatus.SC_OK) {
                     is = httpEntity.getContent();
                     BufferedReader reader = new BufferedReader(
@@ -310,12 +290,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                     }
                     is.close(); // tutup koneksi stlah medapatkan respone
                     json = sb.toString(); // Respon di jadikan sebuah string
-                    System.out.println("Hasil Login " + json);
+                    System.out.println("HASIL :" +json);
                     jObj = new JSONObject(json); // Response di jadikan sebuah
                     result = jObj.getString("status");
-                    System.out.println("Hasul resul; " + result);
+
                     if (result.trim().equals("200")) {
-                        System.out.println("MASUK SETELAH OKe " + params[0]);
                         if (params[0].equals("loginMhs")) {
 
                             id = jObj.getJSONObject("results").getJSONObject("mahasiswa_profile").getString("id");
@@ -332,12 +311,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                             prodi = jObj.getJSONObject("results").getJSONObject("mahasiswa_profile").getString("prodi");
                             id_jurusan = jObj.getJSONObject("results").getJSONObject("mahasiswa_profile").getString("id_jurusan");
                             jurusan = jObj.getJSONObject("results").getJSONObject("mahasiswa_profile").getString("jurusan");
+
                         } else {
                             id_dosen = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("id");
                             nip = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("nip");
-                            dosen_nama = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("dosen_nama");
-                            id_jabatan = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("id_jabatan");
-                            kode_dosen = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("kode");
+                            dosen_nama = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("nama_dosen");
                             jabatan = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("jabatan");
                             tanggal_lahir = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("tanggal_lahir");
                             no_hp = jObj.getJSONObject("results").getJSONObject("dosen_profile").getString("no_hp");
@@ -348,6 +326,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                         // GAGAL LOGIN
                         System.out.println("GAGAL LOGIN");
                     }
+
                 } else {
                     // GAGAL REQUEST
                     System.out.println("GAGAL REQUEST ");
@@ -360,7 +339,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
 
             }
 
-
             // TODO: register the new account here.
             return null;
         }
@@ -371,12 +349,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
             showProgress(false);
             try {
 
-
                 if (result.trim().equals("200")) {
 
                     Intent pindah = new Intent(LoginActivity.this, UtamaActivity.class);
                     pindah.putExtra("typeUser", typeUser);
-                    System.out.println("SENT " + typeUser);
+
                     if (typeUser.equals("loginMhs")) {
                         pindah.putExtra("id", id);
                         pindah.putExtra("nim", nim);
@@ -385,40 +362,38 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
                         pindah.putExtra("id_semester", id_semester);
                         pindah.putExtra("id_akademik", id_akademik);
 
-                        System.out.println("SENT " + mhs_nama);
-                        System.out.println("SENT " + id_kelas);
-                        System.out.println("SENT " + id_semester);
-                        System.out.println("SENT " + id_akademik);
-
                         /* Service mahasiswa untuk mengecek ada jadwal hari ini atau tidak
                          lalu di cek jam jadwalnya jika sudah memasuki jam pada jadwal
                          maka akan mengirimkan location, dgn catatan location di hp sudah enable*/
 
-//                        try {
-//                            Intent start = new Intent(LoginActivity.this, MyServiceMahasiswa.class);
-//                            pindah.putExtra("id", id);
-//                            System.out.println("SENT TO SERVICE " + typeUser);
-//                            pindah.putExtra("typeUser", typeUser);
-//                            pindah.putExtra("nim", nim);
-//                            pindah.putExtra("mhs_name", mhs_nama);
-//                            pindah.putExtra("kelas_id", id_kelas);
-//                            pindah.putExtra("id_semester", id_semester);
-//                            pindah.putExtra("id_akademik", id_akademik);
-//                            startService(start);
-//                        } catch (Exception er) {
-//
-//                        }
+                        try {
+                            Intent start = new Intent(LoginActivity.this, MyServiceMahasiswa.class);
+                            start.putExtra("typeUser", typeUser);
+                            start.putExtra("nim", nim);
+                            start.putExtra("mhs_nama", mhs_nama);
+                            start.putExtra("id_kelas", id_kelas);
+                            start.putExtra("id_semester", id_semester);
+                            start.putExtra("id_akademik", id_akademik);
+                            startService(start);
+
+                        } catch (Exception er) {
+
+                        }
+
                     } else {
-                        pindah.putExtra("id", id);
                         pindah.putExtra("nip", nip);
                         pindah.putExtra("dosen_nama", dosen_nama);
+
                     }
                     startActivity(pindah);
+
                 } else {
 
                 }
+
             } catch (Exception er) {
                 System.out.println("Errorrr " + er.getMessage());
+
             }
         }
 
@@ -426,6 +401,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderManager.Lo
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+
         }
     }
 }

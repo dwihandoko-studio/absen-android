@@ -47,12 +47,12 @@ public class AdapterJadwal extends RecyclerView.Adapter<AdapterJadwal.DataObject
 
         @Override
         public void onClick(View v) {
-            myClickListener.onItemClick(getAdapterPosition(), v);
+//            myClickListener.onItemClick(getAdapterPosition(), v);
         }
     }
 
     public void setOnItemClickListener(MyClickListener myClickListener) {
-        this.myClickListener = myClickListener;
+//        this.myClickListener = myClickListener;
     }
 
     public AdapterJadwal(Context applicationContext, ArrayList<DataObjectJadwal> myDataset) {
@@ -61,10 +61,8 @@ public class AdapterJadwal extends RecyclerView.Adapter<AdapterJadwal.DataObject
     }
 
     @Override
-    public DataObjectScheHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_jadwal, parent, false);
+    public DataObjectScheHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_jadwal, parent, false);
         DataObjectScheHolder dataObjectHolder = new DataObjectScheHolder(view);
         return dataObjectHolder;
     }
@@ -72,9 +70,9 @@ public class AdapterJadwal extends RecyclerView.Adapter<AdapterJadwal.DataObject
     @Override
     public void onBindViewHolder(final DataObjectScheHolder holder, final int position) {
 
-        if (mDataset.get(position).getJumlahJadwal() == "0" ){
+        if (mDataset.get(position).getJumlahJadwal().equals("0")){
             holder.Hari.setText(mDataset.get(position).getJadwalHari());
-            holder.Jumlah.setText("Kosong");
+            holder.Jumlah.setText("Tidak Ada Mata Kuliah");
             holder.Waktu.setText("Kosong");
         } else {
             holder.Hari.setText(mDataset.get(position).getJadwalHari());
@@ -85,14 +83,22 @@ public class AdapterJadwal extends RecyclerView.Adapter<AdapterJadwal.DataObject
                 public void onClick(View v) {
                 Intent pindah = new Intent(context, JadwalHarianActivity.class);
                 pindah.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                pindah.putExtra("day", mDataset.get(position).getJadwalHari());
-                pindah.putExtra("typeUser", JadwalActivity.typeUser);
-                pindah.putExtra("nim", JadwalActivity.nim);
-                pindah.putExtra("mhs_nama", JadwalActivity.mhs_nama);
-                pindah.putExtra("id_kelas", JadwalActivity.id_kelas);
-                pindah.putExtra("id_semester", JadwalActivity.id_semester);
-                pindah.putExtra("id_akademik", JadwalActivity.id_akademik);
-                pindah.putExtra("position", String.valueOf(position + 1));
+                    if(JadwalActivity.typeUser.equals("loginMhs")){
+                        pindah.putExtra("day", mDataset.get(position).getJadwalHari());
+                        pindah.putExtra("typeUser", JadwalActivity.typeUser);
+                        pindah.putExtra("nim", JadwalActivity.nim);
+                        pindah.putExtra("mhs_nama", JadwalActivity.mhs_nama);
+                        pindah.putExtra("id_kelas", JadwalActivity.id_kelas);
+                        pindah.putExtra("id_semester", JadwalActivity.id_semester);
+                        pindah.putExtra("id_akademik", JadwalActivity.id_akademik);
+                        pindah.putExtra("position", String.valueOf(position + 1));
+
+                    } else {
+                        pindah.putExtra("day", mDataset.get(position).getJadwalHari());
+                        pindah.putExtra("typeUser", JadwalActivity.typeUser);
+                        pindah.putExtra("nip", JadwalActivity.nip);
+                    }
+
                 context.startActivity(pindah);
 
                 }

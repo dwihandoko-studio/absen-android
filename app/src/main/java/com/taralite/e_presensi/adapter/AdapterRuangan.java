@@ -12,32 +12,32 @@ import android.widget.TextView;
 
 import com.taralite.e_presensi.R;
 import com.taralite.e_presensi.menu.RuanganDetailActivity;
-import com.taralite.e_presensi.object.DataObjectJadwalHarian;
+import com.taralite.e_presensi.object.DataObjectRuangan;
 
 import java.util.ArrayList;
 
 /**
- * Created by taralite on 5/26/16.
+ * Created by taralite on 6/10/16.
  */
-public class AdapterJadwalHarian extends RecyclerView.Adapter<AdapterJadwalHarian.DataObjectHolder> {
-    private static String LOG_TAG = "AdapterJadwalHarian";
-    private ArrayList<DataObjectJadwalHarian> mDataset;
+public class AdapterRuangan extends RecyclerView.Adapter<AdapterRuangan.DataObjectRuanganHolder> {
+    private static String LOG_TAG = "AdapterRuangan";
+    private ArrayList<DataObjectRuangan> mDataset;
     private static MyClickListener myClickListener;
     Context context;
 
-    public static class DataObjectHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView Matkul, Ruangan, Waktu, Dosen;
-        ImageView Garis;
-        CardView CardView;
+    public static class DataObjectRuanganHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView Ruangan, LantaiRuangan, StatusRuangan;
+        CardView layoutCardView;
+        ImageView ImageStatusRuangan, Garis;
 
-        public DataObjectHolder(View itemView) {
+        public DataObjectRuanganHolder(View itemView) {
             super(itemView);
-            Matkul = (TextView) itemView.findViewById(R.id.cjh_matkul);
-            Ruangan = (TextView) itemView.findViewById(R.id.cjh_ruangan);
-            Waktu = (TextView) itemView.findViewById(R.id.cjh_waktu);
-            Dosen = (TextView) itemView.findViewById(R.id.cjh_dosen);
-            Garis = (ImageView) itemView.findViewById(R.id.cjh_garis);
-            CardView = (CardView) itemView.findViewById(R.id.cjh_card_view);
+            Ruangan = (TextView) itemView.findViewById(R.id.cr_ruangan);
+            LantaiRuangan = (TextView) itemView.findViewById(R.id.cr_lantai);
+            StatusRuangan = (TextView) itemView.findViewById(R.id.cr_status);
+            layoutCardView = (CardView) itemView.findViewById(R.id.cr_card_view);
+            ImageStatusRuangan = (ImageView) itemView.findViewById(R.id.cr_imagestatus);
+            Garis = (ImageView) itemView.findViewById(R.id.cr_garis);
 
             itemView.setOnClickListener(this);
         }
@@ -45,36 +45,39 @@ public class AdapterJadwalHarian extends RecyclerView.Adapter<AdapterJadwalHaria
         @Override
         public void onClick(View v) {
 //            myClickListener.onItemClick(getAdapterPosition(), v);
-
         }
     }
 
     public void setOnItemClickListener(MyClickListener myClickListener) {
-        this.myClickListener = myClickListener;
+//        this.myClickListener = myClickListener;
     }
 
-    public AdapterJadwalHarian(Context applicationContext, ArrayList<DataObjectJadwalHarian> myDataset) {
+    public AdapterRuangan(Context applicationContext, ArrayList<DataObjectRuangan> myDataset) {
         context = applicationContext;
         mDataset = myDataset;
     }
 
     @Override
-    public DataObjectHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_jadwal_harian, parent, false);
-        DataObjectHolder dataObjectHolder = new DataObjectHolder(view);
+    public DataObjectRuanganHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_ruangan, parent, false);
+        DataObjectRuanganHolder dataObjectHolder = new DataObjectRuanganHolder(view);
         return dataObjectHolder;
     }
 
     @Override
-    public void onBindViewHolder(final DataObjectHolder holder, final int position) {
-        holder.Matkul.setText(mDataset.get(position).getMatkul());
-        holder.Ruangan.setText(mDataset.get(position).getKodeRuangan());
-        holder.Waktu.setText(mDataset.get(position).getWaktu());
-        holder.Dosen.setText(mDataset.get(position).getDosen());
-        holder.CardView.setOnClickListener(new View.OnClickListener() {
+    public void onBindViewHolder(final DataObjectRuanganHolder holder, final int position) {
+        holder.Ruangan.setText(mDataset.get(position).getRuangan());
+        holder.LantaiRuangan.setText("Lantai " + mDataset.get(position).getLantaiRuangan());
+        holder.StatusRuangan.setText(mDataset.get(position).getStatusRuangan());
+        if (mDataset.get(position).getStatusRuangan().equals("kosong")) {
+            holder.ImageStatusRuangan.setImageResource(R.drawable.buled_merah);
+        } else {
+            holder.ImageStatusRuangan.setImageResource(R.drawable.buled_hijau);
+        }
+
+        holder.layoutCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            try {
                 Intent pindah = new Intent(context, RuanganDetailActivity.class);
                 pindah.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 pindah.putExtra("id_ruangan", mDataset.get(position).getKodeRuangan());
@@ -83,22 +86,19 @@ public class AdapterJadwalHarian extends RecyclerView.Adapter<AdapterJadwalHaria
                 pindah.putExtra("ruangan_latlng2", mDataset.get(position).getRuangan_latlng2());
                 pindah.putExtra("ruangan_latlng3", mDataset.get(position).getRuangan_latlng3());
                 pindah.putExtra("ruangan_latlng4", mDataset.get(position).getRuangan_latlng4());
+
                 context.startActivity(pindah);
-
-            } catch (Exception er) {
-
-            }
             }
         });
     }
 
-    public void addItem(DataObjectJadwalHarian dataObj, int index) {
+    public void addItem(DataObjectRuangan dataObj, int index) {
         mDataset.add(index, dataObj);
         notifyItemInserted(index);
 
     }
 
-    public void updateItem(DataObjectJadwalHarian dataObj, int index) {
+    public void updateItem(DataObjectRuangan dataObj, int index) {
         mDataset.set(index, dataObj);
         notifyDataSetChanged();
 
